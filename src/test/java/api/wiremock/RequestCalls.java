@@ -3,19 +3,18 @@ package api.wiremock;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.utils.Tokens;
-import static org.hamcrest.Matchers.*;
 
 import io.restassured.RestAssured;
 
-public class WireMocks implements Tokens{
+public class RequestCalls implements Tokens{
 
 	private static final int PORT = 8080;
 	private static final String HOST = "localhost";
@@ -85,28 +84,9 @@ public class WireMocks implements Tokens{
 				.statusCode(204);
 	}
 	
-	@Test
-	void configureBasicAuthStub() {
-		mockResponse.withStatus(200);
-		WireMock.configureFor(HOST, PORT);
-		WireMock.stubFor(WireMock.get("/users")
-				.willReturn(mockResponse)
-				.withBasicAuth(username, password));
-	}
-	
-	@Test
-	void configureApiKeys() {
-		mockResponse.withStatus(200);
-		WireMock.configureFor(HOST, PORT);
-		WireMock.stubFor(WireMock.get("/users")
-				.willReturn(mockResponse)
-				.withQueryParam("appid", (StringValuePattern) equalTo("e71238e36dbbb77cfab35aba27cce36b")));
-	}
-	
-	@Test
-	void testBasicAuth() throws URISyntaxException {
-		RestAssured.given().when().get(new URI("http://localhost:8080/users")).then().assertThat()
-				.statusCode(200);
+	@AfterClass
+	public static void tearDown() {	
+		server.stop();
 	}
 
 }
